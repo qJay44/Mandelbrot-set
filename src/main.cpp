@@ -1,34 +1,36 @@
 #include <cmath>
 #include "colormap.hpp"
-#include "pch.h"
+#include "Gui.hpp"
 
 #define WIDTH 1000
 #define HEIGHT 720
 
 int main() {
   sf::RenderWindow window;
-  sf::VertexArray vertices{sf::Points, WIDTH * HEIGHT};
   sf::Shader shader;
   sf::RectangleShape rect({WIDTH, HEIGHT});
+  sf::Clock clock;
 
-  float bound = 2.5f;
+  sf::Glsl::Vec2 boundsX{-2.5f, 1.f};
+  sf::Glsl::Vec2 boundsY{-1.f, 1.f};
   int iters = 1000;
 
   // Setup main window
   window.create(sf::VideoMode(WIDTH, HEIGHT), "Mandelbrot set", sf::Style::Close);
   window.setFramerateLimit(90);
 
+  // ImGui init
+  Gui gui(window, boundsX, boundsY, iters);
+
   // Shader setup
   shader.loadFromFile("../../src/mandelbrot.frag", sf::Shader::Fragment);
-  shader.setUniformArray("colormap", plasma, 256);
+  shader.setUniformArray("colormap", colormap, 256);
   shader.setUniform("resolution", sf::Glsl::Vec2{WIDTH, HEIGHT});
-  shader.setUniform("bound", bound);
-  shader.setUniform("iters", iters);
-  shader.setUniform("colormapStep", 255.f / iters);
 
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
+      gui.processEvent(event);
       if (event.type == sf::Event::Closed)
         window.close();
 
@@ -40,21 +42,15 @@ int main() {
           default:
             break;
         }
-
-      if (event.type == sf::Event::MouseWheelScrolled) {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
-          iters = std::clamp(iters + 100 * event.mouseWheelScroll.delta, 100.f, 5000.f);
-          shader.setUniform("iters", iters);
-          shader.setUniform("colormapStep", 255.f / iters);
-        } else {
-          bound += 0.1f * event.mouseWheelScroll.delta;
-          shader.setUniform("bound", bound);
-        }
-      }
     }
+
+    shader.setUniform("boundsX", boundsX);
+    shader.setUniform("boundsY", boundsY);
+    shader.setUniform("iters", iters);
 
     window.clear();
     window.draw(rect, &shader);
+    gui.draw(clock.restart());
     window.display();
   }
 

@@ -12,12 +12,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(MyProject VERSION 1.0)
 
 find_package(SFML 2.6.0 COMPONENTS system window graphics REQUIRED)
+find_package(OpenGL REQUIRED)
 
-include_directories(${MY_UTILS_PATH})
+include_directories(${OPENGL_INCLUDE_DIRS} ${IMGUI} ${IMGUI_SFML} ${MY_UTILS_PATH})
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES
+  ${PROJECT_SOURCE_DIR}/src/*.cpp
+  ${IMGUI}imgui.cpp
+  ${IMGUI}imgui_widgets.cpp
+  ${IMGUI}imgui_draw.cpp
+  ${IMGUI}imgui_tables.cpp
+  ${IMGUI_SFML}imgui-SFML.cpp
+)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${SRC_DIR}pch.h)
-target_link_libraries(MyProject sfml-system sfml-window sfml-graphics)
+target_link_libraries(MyProject sfml-system sfml-window sfml-graphics ${OPENGL_LIBRARIES})
 
