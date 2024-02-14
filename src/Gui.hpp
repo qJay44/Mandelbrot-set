@@ -4,19 +4,11 @@
 
 class Gui {
   sf::RenderWindow& window;
-  sf::Glsl::Vec2& boundsX;
-  sf::Glsl::Vec2& boundsY;
   int& iters;
 
-  void reset() {
-    boundsX = {-2.5f, 1.f};
-    boundsY = {-1.f, 1.f};
-    iters = 1000;
-  }
-
 public:
-  Gui(sf::RenderWindow& win, sf::Glsl::Vec2& bX, sf::Glsl::Vec2& bY, int& iters)
-    : window(win), boundsX(bX), boundsY(bY), iters(iters) {
+  Gui(sf::RenderWindow& win, int& iters)
+    : window(win), iters(iters) {
     if (!ImGui::SFML::Init(window))
       throw std::runtime_error("ImGui initialization failed");
   }
@@ -25,6 +17,7 @@ public:
     static bool doOnce = true;
     ImGui::SFML::Update(window, time);
 
+    // Adjust imgui position
     if (doOnce) {
       ImGui::SetNextWindowPos({ 0, 0 });
       ImGui::SetNextWindowCollapsed(true);
@@ -33,17 +26,7 @@ public:
     }
 
     ImGui::Begin("Settings");
-
-    ImGui::Text("X-axis bounds");
-    ImGui::SliderFloat("Min##1", &boundsX.x, -5.f, 5.f);
-    ImGui::SliderFloat("Max##1", &boundsX.y, -5.f, 5.f);
-
-    ImGui::Text("Y-axis bounds");
-    ImGui::SliderFloat("Min##2", &boundsY.x, -5.f, 5.f);
-    ImGui::SliderFloat("Max##2", &boundsY.y, -5.f, 5.f);
-
-    ImGui::Spacing();
-    ImGui::SliderInt("Max iterations", &iters, 100, 1000);
+    ImGui::SliderInt("Max iterations", &iters, 100, 5000);
 
     if (ImGui::Button("Reset")) reset();
 
@@ -56,11 +39,8 @@ public:
     ImGui::SFML::ProcessEvent(event);
   }
 
-  bool isHovered() {
-    return
-      ImGui::IsAnyItemHovered() ||
-      ImGui::IsWindowHovered(ImGuiFocusedFlags_AnyWindow) ||
-      ImGui::IsAnyItemActive();
-  };
+  void reset() {
+    iters = 1000;
+  }
 };
 
