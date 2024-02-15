@@ -31,7 +31,7 @@ void main() {
   float y = 0.f;
   int n = 0;
 
-  while (x * x + y * y <= (1 << 16) && n++ < iters) {
+  while (x * x + y * y <= 4.f && n++ < iters) {
     float xTemp = x * x - y * y + x0;
     y = 2.f * x * y + y0;
     x = xTemp;
